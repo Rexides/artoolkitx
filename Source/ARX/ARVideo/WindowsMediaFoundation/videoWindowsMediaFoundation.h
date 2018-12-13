@@ -55,7 +55,7 @@ int                    ar2VideoCloseWinMF          (AR2VideoParamWinMFT *vid);
 int                    ar2VideoGetIdWinMF          (AR2VideoParamWinMFT *vid, ARUint32 *id0, ARUint32 *id1);
 int                    ar2VideoGetSizeWinMF        (AR2VideoParamWinMFT *vid, int *x,int *y);
 AR_PIXEL_FORMAT        ar2VideoGetPixelFormatWinMF (AR2VideoParamWinMFT *vid);
-AR2VideoBufferT       *ar2VideoGetImageWinMF       (AR2VideoParamWinMFT *vid);
+AR2VideoBufferT       *ar2VideoGetImageWinMF       (AR2VideoParamWinMFT *vid, AR2VideoBufferT **read_buffer);
 int                    ar2VideoCapStartWinMF       (AR2VideoParamWinMFT *vid);
 int                    ar2VideoCapStopWinMF        (AR2VideoParamWinMFT *vid);
 

@@ -76,6 +76,7 @@ ARVideoSource::ARVideoSource() :
     m_getFrameTextureTime{0, 0},
     m_error(ARX_ERROR_NONE)
 {
+    pthread_rwlock_init(&m_captureLock, NULL);
     pthread_rwlock_init(&m_frameBufferLock, NULL);
 }
 
@@ -100,6 +101,7 @@ ARVideoSource::~ARVideoSource()
     }
 
     pthread_rwlock_destroy(&m_frameBufferLock);
+    pthread_rwlock_destroy(&m_captureLock);
 }
 
 void ARVideoSource::configure(const char* vconf, bool noCpara, const char* cparaName, const char* cparaBuff, size_t cparaBuffLen)
@@ -295,13 +297,27 @@ bool ARVideoSource::captureFrame()
             ARLOGi("Video source is running. (Waited %d calls.)\n", m_captureFrameWaitCount);
             m_captureFrameWaitCount = 0;
         }
-        pthread_rwlock_wrlock(&m_frameBufferLock);
-        AR2VideoBufferT *vbuff = ar2VideoGetImage(m_vid);
-        pthread_rwlock_unlock(&m_frameBufferLock);
+        
+        AR2VideoBufferT *read_buffer;
+        pthread_rwlock_wrlock(&m_captureLock);
+        if (!m_vid) {
+          pthread_rwlock_unlock(&m_captureLock);
+          return false;
+        }
+        AR2VideoBufferT *vbuff = ar2VideoGetImage(m_vid, &read_buffer);
+        
         if (vbuff && vbuff->fillFlag) {
-            m_frameBuffer = vbuff;
+            pthread_rwlock_wrlock(&m_frameBufferLock);
+            m_frameBuffer = read_buffer;
+            AR2VideoBufferT temp;
+            temp = *m_frameBuffer;
+            *m_frameBuffer = *vbuff;
+            *vbuff = temp;
+            pthread_rwlock_unlock(&m_frameBufferLock);
+            pthread_rwlock_unlock(&m_captureLock);
             return true;
         }
+        pthread_rwlock_unlock(&m_captureLock);
     } else {
         if (!m_captureFrameWaitCount) {
             ARLOGi("Waiting for video source.\n");
@@ -319,7 +335,7 @@ bool ARVideoSource::close()
         ARLOGd("ARVideoSource::close(): already closed.\n");
         return true;
     }
-
+    pthread_rwlock_wrlock(&m_captureLock);
     if (deviceState == DEVICE_RUNNING) {
         ARLOGd("ARVideoSource::close(): stopping video.\n");
 
@@ -341,7 +357,7 @@ bool ARVideoSource::close()
 
     m_vid = NULL;
     deviceState = DEVICE_CLOSED; // artoolkitX video source is always ready to be opened.
-
+    pthread_rwlock_unlock(&m_captureLock);
     return true;
 }
 

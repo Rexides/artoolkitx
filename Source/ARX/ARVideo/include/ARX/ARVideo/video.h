@@ -501,7 +501,7 @@ ARVIDEO_EXTERN int               ar2VideoGetId           (AR2VideoParamT *vid, A
 ARVIDEO_EXTERN int               ar2VideoGetSize         (AR2VideoParamT *vid, int *x,int *y);
 ARVIDEO_EXTERN int               ar2VideoGetPixelSize    (AR2VideoParamT *vid);
 ARVIDEO_EXTERN AR_PIXEL_FORMAT   ar2VideoGetPixelFormat  (AR2VideoParamT *vid);
-ARVIDEO_EXTERN AR2VideoBufferT  *ar2VideoGetImage        (AR2VideoParamT *vid);
+ARVIDEO_EXTERN AR2VideoBufferT  *ar2VideoGetImage        (AR2VideoParamT *vid, AR2VideoBufferT **read_buffer);
 ARVIDEO_EXTERN int               ar2VideoCapStart        (AR2VideoParamT *vid);
 ARVIDEO_EXTERN int               ar2VideoCapStartAsync   (AR2VideoParamT *vid, AR_VIDEO_FRAME_READY_CALLBACK callback, void *userdata);
 ARVIDEO_EXTERN int               ar2VideoCapStop         (AR2VideoParamT *vid);

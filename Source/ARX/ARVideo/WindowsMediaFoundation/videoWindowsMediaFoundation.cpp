@@ -95,6 +95,7 @@ struct _AR2VideoParamWinMFT {
     IMFSourceReader *pSourceReader;
     long bufSize;
     AR2VideoBufferT buffer;
+    AR2VideoBufferT read_buffer;
 	int flipV;
 	int flipH;
 };
@@ -631,6 +632,7 @@ AR2VideoParamWinMFT *ar2VideoOpenWinMF(const char *config)
     
     vid->bufSize = vid->width * vid->height * arVideoUtilGetPixelSize(vid->format);
     arMalloc(vid->buffer.buff, ARUint8, vid->bufSize);
+    arMalloc(vid->read_buffer.buff, ARUint8, vid->bufSize);
 
 	return (AR2VideoParamWinMFT *)vid;
 
@@ -655,6 +657,8 @@ bail:
 
 int ar2VideoCloseWinMF(AR2VideoParamWinMFT *vid)
 {
+    free(vid->read_buffer.buff);
+    vid->read_buffer.buff = vid->read_buffer.buffLuma = NULL;
     free(vid->buffer.buff);
 	vid->buffer.buff = vid->buffer.buffLuma = NULL;
 	SafeRelease(&vid->pSourceReader);
@@ -681,7 +685,7 @@ int ar2VideoCapStopWinMF(AR2VideoParamWinMFT *vid)
     return 0;
 }
 
-AR2VideoBufferT *ar2VideoGetImageWinMF(AR2VideoParamWinMFT *vid)
+AR2VideoBufferT *ar2VideoGetImageWinMF(AR2VideoParamWinMFT *vid, AR2VideoBufferT **read_buffer)
 {
     HRESULT hr;
     DWORD streamIndex, flags;
@@ -775,6 +779,7 @@ AR2VideoBufferT *ar2VideoGetImageWinMF(AR2VideoParamWinMFT *vid)
     vid->buffer.buffLuma = NULL;
     
     SafeRelease(&pSample);
+    *read_buffer = &vid->read_buffer;
     return (&vid->buffer);
 }
 

@@ -616,7 +616,7 @@ AR_PIXEL_FORMAT ar2VideoGetPixelFormat(AR2VideoParamT *vid)
     return (AR_PIXEL_FORMAT_INVALID);
 }
 
-AR2VideoBufferT *ar2VideoGetImage(AR2VideoParamT *vid)
+AR2VideoBufferT *ar2VideoGetImage(AR2VideoParamT *vid, AR2VideoBufferT **read_buffer)
 {
     AR2VideoBufferT *ret = NULL;
 
@@ -658,7 +658,7 @@ AR2VideoBufferT *ar2VideoGetImage(AR2VideoParamT *vid)
 #endif
 #ifdef ARVIDEO_INPUT_WINDOWS_MEDIA_FOUNDATION
     if (vid->module == AR_VIDEO_MODULE_WINDOWS_MEDIA_FOUNDATION) {
-        ret = ar2VideoGetImageWinMF((AR2VideoParamWinMFT *)vid->moduleParam);
+        ret = ar2VideoGetImageWinMF((AR2VideoParamWinMFT *)vid->moduleParam, read_buffer);
     }
 #endif
 #ifdef ARVIDEO_INPUT_WINDOWS_MEDIA_CAPTURE

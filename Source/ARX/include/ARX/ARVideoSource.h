@@ -87,6 +87,7 @@ private:
     void setError(int error);
     
     pthread_rwlock_t m_frameBufferLock;
+    pthread_rwlock_t m_captureLock;
 
     static void openCallback(void *userData);
     bool open2();
